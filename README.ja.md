@@ -1,6 +1,10 @@
+# pm-guard — pnpm プロジェクトでうっかり `npm install` しちゃう事故を防ぐ
+
+<div align="center">
+
 [English](./README.md) | 日本語
 
-# pm-guard — pnpm プロジェクトでうっかり `npm install` しちゃう事故を防ぐ
+</div>
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) プラグイン。Claude が間違ったパッケージマネージャーを使うのをブロックします。
 
