@@ -1,6 +1,6 @@
 # pm-guard — もう「間違えて `npm install`」しない
 
-間違ったパッケージマネージャーを実行前に止める [Claude Code](https://docs.anthropic.com/ja/docs/claude-code) プラグイン。
+Claude が間違ったパッケージマネージャーを使うのを未然に防ぐ [Claude Code](https://docs.anthropic.com/ja/docs/claude-code) プラグイン。
 
 ---
 
@@ -12,9 +12,9 @@
 
 ## 機能
 
-- npm, yarn, pnpm, bun, deno をガード（`npx`, `pnpx`, `bunx` も対象）
+- npm, yarn, pnpm, bun, deno に対応（`npx`, `pnpx`, `bunx` も含む）
 - 環境変数、`package.json`、ロックファイルからプロジェクトのパッケージマネージャーを自動検出
-- `PreToolUse` フックで、コマンド実行前に不許可のコマンドをブロック
+- `PreToolUse` フックでコマンド実行前にブロック
 - 依存ゼロ — 純粋な bash スクリプト、jq も node も不要
 
 ## クイックスタート
@@ -31,15 +31,15 @@
    /plugin install pm-guard@pm-guard
    ```
 
-3. 以上。pm-guard はロックファイルや `package.json` からパッケージマネージャーを自動検出するので、設定は不要です。
+3. これだけ。pm-guard がロックファイルや `package.json` からパッケージマネージャーを自動検出するので、設定不要。
 
-Claude が間違ったパッケージマネージャーを使おうとすると、コマンドがブロックされます:
+Claude が間違ったパッケージマネージャーを使おうとすると、ブロックされます:
 
 > This project uses pnpm. Use pnpm commands instead of npm.
 
 ## 設定
 
-許可するパッケージマネージャーは、以下の優先順位で検出されます:
+許可するパッケージマネージャーは以下の優先順位で決まります:
 
 ### 1. `PM_GUARD_ALLOWED` 環境変数（最優先）
 
@@ -55,7 +55,7 @@ PM_GUARD_ALLOWED=pnpm claude
 }
 ```
 
-バージョン部分は無視され、パッケージマネージャー名のみが使用されます。
+バージョン部分は無視され、名前だけが使われます。
 
 ### 3. ロックファイル検出（最低優先）
 
@@ -69,14 +69,14 @@ PM_GUARD_ALLOWED=pnpm claude
 
 ## 仕組み
 
-pm-guard は `Bash` ツールに対する `PreToolUse` フックを登録します。Claude がシェルコマンドを実行しようとすると、フックが以下を行います:
+pm-guard は `Bash` ツールの `PreToolUse` フックとして動作します。Claude がシェルコマンドを実行しようとすると、フックが次の処理を行います:
 
 1. ツール入力の JSON からコマンドを抽出
 2. 許可されたパッケージマネージャーを特定（[設定](#設定)を参照）
-3. 単語境界を考慮した正規表現で、不許可のパッケージマネージャーの呼び出しをチェック（`pnpm-lock.yaml` や `.npm/` のような文字列での誤検出を回避）
-4. 違反が見つかった場合は `deny` 判定でコマンドをブロック、問題なければ実行を許可
+3. 単語境界を考慮した正規表現で許可されていないパッケージマネージャーの呼び出しをチェック（`pnpm-lock.yaml` や `.npm/` などの誤検出を防止）
+4. 違反があれば `deny` でブロック、なければそのまま実行を許可
 
-パッケージマネージャーを検出できなかった場合は、警告を出力してコマンドの実行を許可します。
+パッケージマネージャーを検出できない場合は、警告を出してコマンドの実行を許可します。
 
 ## トラブルシューティング
 
@@ -96,7 +96,7 @@ claude --plugin-dir ./plugins/pm-guard
 echo '{"tool_input":{"command":"npm install foo"}}' | PM_GUARD_ALLOWED=pnpm ./plugins/pm-guard/hooks/check-pm.sh
 ```
 
-ビルドステップなし。スクリプトは外部依存のない POSIX 互換の bash を維持する必要があります。
+ビルドステップなし。外部依存のない POSIX 互換 bash で書くこと。
 
 ## ライセンス
 
