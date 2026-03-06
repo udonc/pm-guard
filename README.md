@@ -11,13 +11,19 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that prev
 
 ## Quick Start
 
-1. Install the plugin:
+1. Add the marketplace:
 
    ```
    /plugin marketplace add udonc/pm-guard
    ```
 
-2. That's it. pm-guard auto-detects your package manager from lockfiles or `package.json` — no configuration needed.
+2. Install the plugin:
+
+   ```
+   /plugin install pm-guard@pm-guard
+   ```
+
+3. That's it. pm-guard auto-detects your package manager from lockfiles or `package.json` — no configuration needed.
 
 If Claude tries to use the wrong package manager, the command is blocked:
 
@@ -76,10 +82,10 @@ If the package manager cannot be detected, a warning is emitted and the command 
 
 ```bash
 # Test the plugin locally
-claude --plugin-dir ./
+claude --plugin-dir ./plugins/pm-guard
 
 # Run check-pm.sh directly with mock input
-echo '{"tool_input":{"command":"npm install foo"}}' | PM_GUARD_ALLOWED=pnpm ./hooks/check-pm.sh
+echo '{"tool_input":{"command":"npm install foo"}}' | PM_GUARD_ALLOWED=pnpm ./plugins/pm-guard/hooks/check-pm.sh
 ```
 
 No build step. The script must remain POSIX-ish bash with no external dependencies.

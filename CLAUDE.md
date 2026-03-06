@@ -8,11 +8,12 @@ pm-guard is a Claude Code plugin that prevents Claude from using the wrong packa
 
 ## Architecture
 
-This is a Claude Code plugin. The structure is minimal:
+This is a Claude Code plugin distributed as a custom marketplace. The repo root is the marketplace; the plugin lives under `plugins/pm-guard/`:
 
-- `.claude-plugin/plugin.json` - Plugin manifest (name, version, metadata)
-- `hooks/hooks.json` - Hook registration: binds `check-pm.sh` to `PreToolUse` events on the `Bash` tool
-- `hooks/check-pm.sh` - Core logic: a pure bash script that reads tool input JSON from stdin, extracts the command, detects the allowed package manager, and blocks disallowed ones
+- `.claude-plugin/marketplace.json` - Marketplace manifest (name, owner, plugin list)
+- `plugins/pm-guard/.claude-plugin/plugin.json` - Plugin manifest (name, version, metadata)
+- `plugins/pm-guard/hooks/hooks.json` - Hook registration: binds `check-pm.sh` to `PreToolUse` events on the `Bash` tool
+- `plugins/pm-guard/hooks/check-pm.sh` - Core logic: a pure bash script that reads tool input JSON from stdin, extracts the command, detects the allowed package manager, and blocks disallowed ones
 
 ## How check-pm.sh Works
 
@@ -28,10 +29,10 @@ This is a Claude Code plugin. The structure is minimal:
 
 ```bash
 # Test the plugin locally
-claude --plugin-dir ./
+claude --plugin-dir ./plugins/pm-guard
 
 # Run check-pm.sh directly with mock input
-echo '{"tool_input":{"command":"npm install foo"}}' | PM_GUARD_ALLOWED=pnpm ./hooks/check-pm.sh
+echo '{"tool_input":{"command":"npm install foo"}}' | PM_GUARD_ALLOWED=pnpm ./plugins/pm-guard/hooks/check-pm.sh
 
 # Run BATS tests
 ./scripts/setup-tests.sh

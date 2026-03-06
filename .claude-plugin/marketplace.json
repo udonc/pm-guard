@@ -1,0 +1,26 @@
+{
+  "name": "pm-guard",
+  "owner": {
+    "name": "udon!"
+  },
+  "metadata": {
+    "description": "Package manager guard plugin for Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "pm-guard",
+      "source": "./plugins/pm-guard",
+      "description": "Never accidentally npm install in a pnpm project again — guards npm, yarn, pnpm, bun, and deno.",
+      "author": {
+        "name": "udon!"
+      },
+      "repository": "https://github.com/udonc/pm-guard",
+      "license": "MIT",
+      "keywords": [
+        "package-manager", "guard", "hooks",
+        "npm", "yarn", "pnpm", "bun", "deno",
+        "nodejs", "javascript", "typescript"
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@ _common_setup() {
   load "${BATS_TEST_DIRNAME}/test_helper/bats-support/load"
   load "${BATS_TEST_DIRNAME}/test_helper/bats-assert/load"
 
-  HOOK_SCRIPT="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)/hooks/check-pm.sh"
+  HOOK_SCRIPT="$(cd "${BATS_TEST_DIRNAME}/.." && pwd)/plugins/pm-guard/hooks/check-pm.sh"
   TEST_TEMP_DIR="$(mktemp -d)"
   TEST_INPUT_FILE="$(mktemp)"
 }
