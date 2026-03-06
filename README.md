@@ -1,14 +1,8 @@
 # pm-guard — Never accidentally `npm install` in a pnpm project again
 
+<p align="center">[ <a href="./README.md">English</a> | <a href="./README.ja.md">日本語</a> ]</p>
+
 A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that prevents Claude from using the wrong package manager.
-
----
-
-<div align="center">
-
-English ｜ [日本語](./README.ja.md)
-
-</div>
 
 ## What It Does
 
