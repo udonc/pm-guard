@@ -1,4 +1,4 @@
-# pm-guard — pnpm プロジェクトでうっかり `npm install` しちゃう事故を防ぐ
+# pm-guard — もう「間違えて `npm install`」しない
 
 <div align="center">
 
@@ -8,7 +8,7 @@
 
 ---
 
-[Claude Code](https://docs.anthropic.com/en/docs/claude-code) プラグイン。Claude が間違ったパッケージマネージャーを使うのをブロックします。
+間違ったパッケージマネージャーを実行前に止める [Claude Code](https://docs.anthropic.com/ja/docs/claude-code) プラグイン。
 
 ## 機能
 
