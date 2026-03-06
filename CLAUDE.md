@@ -19,8 +19,9 @@ This is a Claude Code plugin distributed as a custom marketplace. The repo root 
 
 1. **Parses stdin JSON** to extract `tool_input.command` (using sed + awk, no jq dependency)
 2. **Detects allowed PM** with priority: `PM_GUARD_ALLOWED` env var > `package.json` `packageManager` field > lockfile detection
-3. **Blocks disallowed PMs** using word-boundary regex to avoid false positives (e.g., `pnpm-lock.yaml` won't trigger a block). The boundary pattern at line 93: not preceded by `[a-zA-Z0-9_.-]`, not followed by `[a-zA-Z0-9_./-]`
-4. **Outputs hook JSON** with one of three outcomes:
+3. **Strips quoted content** (single and double quotes) to avoid false positives on strings like `grep "npm" package.json`. Known trade-off: `bash -c "npm install"` won't be caught.
+4. **Blocks disallowed PMs** using word-boundary regex (not preceded by `[a-zA-Z0-9_.-]`, not followed by `[a-zA-Z0-9_./-]`) to avoid false positives like `pnpm-lock.yaml`, `.npm/`, `npm-check`
+5. **Outputs hook JSON** with one of three outcomes:
    - `deny` decision with reason (blocked PM detected)
    - `systemMessage` warning (PM could not be detected)
    - Clean exit with no output (command allowed)
