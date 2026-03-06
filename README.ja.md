@@ -2,9 +2,11 @@
 
 <div align="center">
 
-[English](./README.md) | 日本語
+[English](./README.md) ｜ 日本語
 
 </div>
+
+---
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) プラグイン。Claude が間違ったパッケージマネージャーを使うのをブロックします。
 
