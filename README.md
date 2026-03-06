@@ -67,10 +67,14 @@ pm-guard registers a `PreToolUse` hook on the `Bash` tool. When Claude attempts 
 
 1. Extracts the command from the tool input JSON
 2. Determines the allowed package manager (see [Configuration](#configuration))
-3. Checks the command for disallowed package manager invocations using word-boundary-aware regex (avoids false positives on strings like `pnpm-lock.yaml` or `.npm/`)
-4. Blocks the command with a `deny` decision if a violation is found, or allows it to proceed
+3. Strips content inside quotes (both single and double) so that strings like `grep "npm" package.json` don't trigger false positives
+4. Checks the remaining command for disallowed package manager invocations using word-boundary-aware regex (avoids false positives on strings like `pnpm-lock.yaml` or `.npm/`)
+5. Blocks the command with a `deny` decision if a violation is found, or allows it to proceed
 
 If the package manager cannot be detected, a warning is emitted and the command is allowed.
+
+> [!NOTE]
+> Because quoted content is stripped before checking, commands like `bash -c "npm install"` will **not** be blocked. This is a known trade-off — in the vast majority of cases, package manager commands appear unquoted.
 
 ## Troubleshooting
 

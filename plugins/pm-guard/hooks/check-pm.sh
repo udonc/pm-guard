@@ -88,10 +88,34 @@ done
 [ -z "$blocked" ] && exit 0
 
 # --- Check command for blocked PM usage ---
+# Strip content inside quotes to avoid false positives (e.g., echo "npm is cool")
+stripped_command=$(printf '%s' "$command" | awk '{
+  if (NR == 1) s = $0; else s = s "\n" $0
+}
+END {
+  result = ""; in_sq = 0; in_dq = 0; i = 1
+  while (i <= length(s)) {
+    c = substr(s, i, 1)
+    if (in_sq) {
+      if (c == "'"'"'") in_sq = 0
+    } else if (in_dq) {
+      if (c == "\\" && i < length(s)) { i++ }
+      else if (c == "\"") { in_dq = 0 }
+    } else {
+      if (c == "'"'"'") { in_sq = 1 }
+      else if (c == "\"") { in_dq = 1 }
+      else if (c == "\\" && i < length(s)) { result = result c substr(s, i+1, 1); i++ }
+      else { result = result c }
+    }
+    i++
+  }
+  printf "%s", result
+}')
+
 # Word boundaries: not preceded by [a-zA-Z0-9_.-], not followed by [a-zA-Z0-9_./-]
 # Avoids false positives like "pnpm-lock.yaml", ".npm/", "npm-check"
-if printf '%s' "$command" | grep -qE "(^|[^a-zA-Z0-9_.-])(${blocked})([^a-zA-Z0-9_./-]|$)"; then
-  matched=$(printf '%s' "$command" | grep -oE "(^|[^a-zA-Z0-9_.-])(${blocked})([^a-zA-Z0-9_./-]|$)" | head -1 | sed 's/^[^a-zA-Z]*//;s/[^a-zA-Z]*$//')
+if printf '%s' "$stripped_command" | grep -qE "(^|[^a-zA-Z0-9_.-])(${blocked})([^a-zA-Z0-9_./-]|$)"; then
+  matched=$(printf '%s' "$stripped_command" | grep -oE "(^|[^a-zA-Z0-9_.-])(${blocked})([^a-zA-Z0-9_./-]|$)" | head -1 | sed 's/^[^a-zA-Z]*//;s/[^a-zA-Z]*$//')
   cat <<EOF
 {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"This project uses ${allowed_pm}. Use ${allowed_pm} commands instead of ${matched}."}}
 EOF

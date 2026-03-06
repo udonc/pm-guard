@@ -459,9 +459,9 @@ teardown() {
   assert_denied "pnpm" "npm"
 }
 
-@test "edge: command with PM in quoted string still blocks" {
+@test "edge: command with PM in quoted string is allowed" {
   run_hook --pm pnpm 'echo "use npm to install"'
-  assert_denied "pnpm" "npm"
+  assert_allowed
 }
 
 @test "edge: heredoc-style command blocks disallowed PM" {
@@ -472,6 +472,50 @@ teardown() {
 @test "edge: PM_GUARD_ALLOWED empty string treated as unset" {
   create_lockfile "pnpm-lock.yaml"
   run_hook_raw --dir "$TEST_TEMP_DIR" '{"tool_input":{"command":"npm install"}}'
+  assert_denied "pnpm" "npm"
+}
+
+# =============================================================================
+# J: Quote-Aware Detection -- False Positive Prevention
+# =============================================================================
+
+@test "quotes: PM in double-quoted echo argument is allowed" {
+  run_hook --pm pnpm 'echo "npm is a package manager"'
+  assert_allowed
+}
+
+@test "quotes: PM in single-quoted echo argument is allowed" {
+  run_hook --pm pnpm "echo 'npm install'"
+  assert_allowed
+}
+
+@test "quotes: PM outside quotes after semicolon is blocked" {
+  run_hook --pm pnpm 'echo "hello"; npm install'
+  assert_denied "pnpm" "npm"
+}
+
+@test "quotes: PM in printf double-quoted argument is allowed" {
+  run_hook_raw --pm pnpm '{"tool_input":{"command":"printf \"use npm\\n\""}}'
+  assert_allowed
+}
+
+@test "quotes: bash -c with PM in quotes is allowed (trade-off)" {
+  run_hook --pm pnpm 'bash -c "npm install"'
+  assert_allowed
+}
+
+@test "quotes: mixed -- quoted PM allowed, unquoted PM blocked" {
+  run_hook --pm pnpm 'echo "npm" && yarn install'
+  assert_denied "pnpm" "yarn"
+}
+
+@test "quotes: PM at start still blocked without quotes" {
+  run_hook --pm pnpm "npm install"
+  assert_denied "pnpm" "npm"
+}
+
+@test "quotes: multiline -- quoted PM on first line, real PM on second" {
+  run_hook_raw --pm pnpm '{"tool_input":{"command":"echo \"npm is cool\"\nnpm install"}}'
   assert_denied "pnpm" "npm"
 }
 
