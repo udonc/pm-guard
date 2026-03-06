@@ -33,9 +33,9 @@ claude --plugin-dir ./
 # Run check-pm.sh directly with mock input
 echo '{"tool_input":{"command":"npm install foo"}}' | PM_GUARD_ALLOWED=pnpm ./hooks/check-pm.sh
 
-# Run BATS tests (requires git submodules)
-git submodule update --init --recursive
+# Run BATS tests
+./scripts/setup-tests.sh
 ./tests/test_helper/bats-core/bin/bats tests/check-pm.bats
 ```
 
-No build step, no dependencies. The script must remain POSIX-ish bash (no jq, no node) to work in any environment. Tests use BATS (Bash Automated Testing System) via git submodules.
+No build step, no dependencies. The script must remain POSIX-ish bash (no jq, no node) to work in any environment. Tests use BATS (Bash Automated Testing System), downloaded on demand via `scripts/setup-tests.sh`.
