@@ -244,6 +244,16 @@ teardown() {
   assert_allowed
 }
 
+@test "no-pm: no warning for double-quoted PM string" {
+  run_hook --dir "$TEST_TEMP_DIR" 'grep "npm" package.json'
+  assert_allowed
+}
+
+@test "no-pm: no warning for single-quoted PM string" {
+  run_hook --dir "$TEST_TEMP_DIR" "echo 'pnpm install'"
+  assert_allowed
+}
+
 # =============================================================================
 # F: Allowed Commands Mapping
 # =============================================================================

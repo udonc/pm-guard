@@ -57,39 +57,9 @@ if [ -z "$allowed_pm" ]; then
   fi
 fi
 
-# Cannot determine PM → only warn if command contains a PM command
-if [ -z "$allowed_pm" ]; then
-  if printf '%s' "$command" | grep -qE '(^|[^a-zA-Z0-9_.-])(npm|npx|yarn|pnpm|pnpx|bun|bunx|deno)([^a-zA-Z0-9_./-]|$)'; then
-    cat <<'EOF'
-{"systemMessage":"pm-guard: Could not detect the project's package manager. Set PM_GUARD_ALLOWED env var, add packageManager to package.json, or ensure a lockfile exists."}
-EOF
-  fi
-  exit 0
-fi
-
-# --- Build blocked command list ---
-case "$allowed_pm" in
-  npm)  allowed_cmds="npm npx" ;;
-  yarn) allowed_cmds="yarn" ;;
-  pnpm) allowed_cmds="pnpm pnpx" ;;
-  bun)  allowed_cmds="bun bunx" ;;
-  deno) allowed_cmds="deno" ;;
-  *)    exit 0 ;;
-esac
-
+# All known PM commands (single source of truth)
 all_cmds="npm npx yarn pnpm pnpx bun bunx deno"
 
-blocked=""
-for cmd in $all_cmds; do
-  case " $allowed_cmds " in
-    *" $cmd "*) ;;
-    *) blocked="${blocked:+$blocked|}$cmd" ;;
-  esac
-done
-
-[ -z "$blocked" ] && exit 0
-
-# --- Check command for blocked PM usage ---
 # Strip content inside quotes to avoid false positives (e.g., echo "npm is cool")
 stripped_command=$(printf '%s' "$command" | awk '{
   if (NR == 1) s = $0; else s = s "\n" $0
@@ -113,6 +83,40 @@ END {
   }
   printf "%s", result
 }')
+
+# Cannot determine PM → only warn if command contains a PM command
+if [ -z "$allowed_pm" ]; then
+  pm_pattern=$(printf '%s' "$all_cmds" | tr ' ' '|')
+  if printf '%s' "$stripped_command" | grep -qE "(^|[^a-zA-Z0-9_.-])(${pm_pattern})([^a-zA-Z0-9_./-]|$)"; then
+    cat <<'EOF'
+{"systemMessage":"pm-guard: Could not detect the project's package manager. Set PM_GUARD_ALLOWED env var, add packageManager to package.json, or ensure a lockfile exists."}
+EOF
+  fi
+  exit 0
+fi
+
+# --- Build blocked command list ---
+case "$allowed_pm" in
+  npm)  allowed_cmds="npm npx" ;;
+  yarn) allowed_cmds="yarn" ;;
+  pnpm) allowed_cmds="pnpm pnpx" ;;
+  bun)  allowed_cmds="bun bunx" ;;
+  deno) allowed_cmds="deno" ;;
+  *)    exit 0 ;;
+esac
+
+blocked=""
+for cmd in $all_cmds; do
+  case " $allowed_cmds " in
+    *" $cmd "*) ;;
+    *) blocked="${blocked:+$blocked|}$cmd" ;;
+  esac
+done
+
+[ -z "$blocked" ] && exit 0
+
+# --- Check command for blocked PM usage ---
+# (stripped_command already computed above)
 
 # Word boundaries: not preceded by [a-zA-Z0-9_.-], not followed by [a-zA-Z0-9_./-]
 # Avoids false positives like "pnpm-lock.yaml", ".npm/", "npm-check"
