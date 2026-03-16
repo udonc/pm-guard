@@ -212,7 +212,7 @@ teardown() {
 # E: No PM Detected -- systemMessage Warning
 # =============================================================================
 
-@test "no-pm: warns when no detection method succeeds" {
+@test "no-pm: warns when no detection method succeeds and command uses PM" {
   run_hook --dir "$TEST_TEMP_DIR" "npm install"
   assert_warning
 }
@@ -227,6 +227,21 @@ teardown() {
   assert_output --partial "PM_GUARD_ALLOWED"
   assert_output --partial "packageManager"
   assert_output --partial "lockfile"
+}
+
+@test "no-pm: no warning for non-PM commands" {
+  run_hook --dir "$TEST_TEMP_DIR" "ls -la"
+  assert_allowed
+}
+
+@test "no-pm: no warning for git commands" {
+  run_hook --dir "$TEST_TEMP_DIR" "git status"
+  assert_allowed
+}
+
+@test "no-pm: no warning for commands referencing PM in filenames" {
+  run_hook --dir "$TEST_TEMP_DIR" "cat pnpm-lock.yaml"
+  assert_allowed
 }
 
 # =============================================================================

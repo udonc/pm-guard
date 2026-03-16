@@ -57,11 +57,13 @@ if [ -z "$allowed_pm" ]; then
   fi
 fi
 
-# Cannot determine PM → warn and allow
+# Cannot determine PM → only warn if command contains a PM command
 if [ -z "$allowed_pm" ]; then
-  cat <<'EOF'
+  if printf '%s' "$command" | grep -qE '(^|[^a-zA-Z0-9_.-])(npm|npx|yarn|pnpm|pnpx|bun|bunx|deno)([^a-zA-Z0-9_./-]|$)'; then
+    cat <<'EOF'
 {"systemMessage":"pm-guard: Could not detect the project's package manager. Set PM_GUARD_ALLOWED env var, add packageManager to package.json, or ensure a lockfile exists."}
 EOF
+  fi
   exit 0
 fi
 
