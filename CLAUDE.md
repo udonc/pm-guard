@@ -23,8 +23,8 @@ This is a Claude Code plugin distributed as a custom marketplace. The repo root 
 4. **Blocks disallowed PMs** using word-boundary regex (not preceded by `[a-zA-Z0-9_.-]`, not followed by `[a-zA-Z0-9_./-]`) to avoid false positives like `pnpm-lock.yaml`, `.npm/`, `npm-check`
 5. **Outputs hook JSON** with one of three outcomes:
    - `deny` decision with reason (blocked PM detected)
-   - `systemMessage` warning (PM could not be detected)
-   - Clean exit with no output (command allowed)
+   - `systemMessage` warning (PM could not be detected AND command contains a PM keyword)
+   - Clean exit with no output (command allowed, or no PM detected and command has no PM keywords)
 
 ## Development
 
