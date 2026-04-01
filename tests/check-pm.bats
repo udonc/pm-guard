@@ -212,9 +212,14 @@ teardown() {
 # E: No PM Detected -- systemMessage Warning
 # =============================================================================
 
-@test "no-pm: warns when no detection method succeeds" {
+@test "no-pm: warns when PM command is used but no detection method succeeds" {
   run_hook --dir "$TEST_TEMP_DIR" "npm install"
   assert_warning
+}
+
+@test "no-pm: silent when command has no PM keywords" {
+  run_hook --dir "$TEST_TEMP_DIR" "git status"
+  assert_allowed
 }
 
 @test "no-pm: command is still allowed (exit 0)" {
